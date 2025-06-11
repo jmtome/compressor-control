@@ -64,13 +64,31 @@ This repository contains the **bare‑bones firmware and wiring plan** for an Ar
 ```
 
 
+## Required Arduino Libraries
+
+Before compiling, make sure to install the following library:
+
+- **LiquidCrystal_I2C** by **Frank de Brabander**  
+  - Open the Arduino IDE  
+  - Go to **Tools > Manage Libraries...**  
+  - Search for `LiquidCrystal_I2C`  
+  - Install the version by **Frank de Brabander**
+
+---
+
 ## Quick‑Start Instructions
 
-1. **Clone** or create the repo and open `src/compressor_controller.ino` in Arduino IDE.
-2. **Select Board** → *Arduino Uno* & correct **Port**.
-3. **Wire components** per *Pin Map* above (use pots for A0/A1).
-4. **Upload** Commit #2 to verify the LCD boots and displays text.
-5. Continue through commits, verifying each stage on hardware.
+1. **Clone or download** this repository to your local machine.  
+2. Open `src/compressor_controller.ino` in the **Arduino IDE**.  
+3. **Install required libraries** (see above).  
+4. Go to **Tools > Board** and select **Arduino Uno**.  
+5. Go to **Tools > Port** and select the correct serial port.  
+6. **Wire components** according to the *Pin Map* section.  
+   - Simulate NTC and Vacuum sensors using potentiometers on A0 and A1.  
+7. Compile and upload the sketch.  
+   - After Commit #2, you should see a splash screen on the LCD ("System Booting").  
+8. Continue through each commit step to build functionality incrementally.
+
 
 ---
 
