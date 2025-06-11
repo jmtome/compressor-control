@@ -63,25 +63,6 @@ This repository contains the **bare‑bones firmware and wiring plan** for an Ar
 └── README.md                       ← this file
 ```
 
-### Why `compressor_controller.ino`?
-
-Arduino IDE expects the sketch file name to match its parent folder. Naming it `compressor_controller` keeps the purpose clear while avoiding spaces and special characters. If you change the directory name, rename the `.ino` to match.
-
----
-
-## Commit Strategy
-
-We follow **small, verifiable steps**. Suggested commit messages:
-
-1. **chore: add base project structure** – libraries, constants, empty `setup()`/`loop()`
-2. **feat: initialize I²C LCD** – `lcd.init()` & splash screen
-3. **feat: configure compressor output pins** – set D6/D7 as outputs, default LOW
-4. **feat: read mock analog sensors** – map A0/A1 to °C & vacuum units
-5. **feat: display mock data on LCD** – show temperature, humidity placeholder, vacuum
-
-> Push after each commit so you can test & revert easily.
-
----
 
 ## Quick‑Start Instructions
 
