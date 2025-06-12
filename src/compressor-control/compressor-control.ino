@@ -64,6 +64,7 @@ void loop() {
   delay(1000);
 
   displaySensorData(temperatureC, humidity, vacuumLevel);
+  updateCompressorControl(temperatureC, vacuumLevel);
 }
 
 void displaySensorData(float tempC, float humidity, float vacuum) {
@@ -79,4 +80,22 @@ void displaySensorData(float tempC, float humidity, float vacuum) {
   lcd.print("Vacuum: ");
   lcd.print(vacuum, 0);
   lcd.print("kPa");
+}
+
+void updateCompressorControl(float temperatureC, float vacuumLevel) {
+  bool compressorShouldRun = false;
+
+  // Basic threshold logic
+  if (temperatureC > 35.0 && vacuumLevel < 20.0) {
+    compressorShouldRun = true;
+  }
+
+  // Apply output logic
+  if (compressorShouldRun) {
+    digitalWrite(COMPRESSOR_START_PIN, HIGH);
+    digitalWrite(COMPRESSOR_ON_PIN, HIGH);
+  } else {
+    digitalWrite(COMPRESSOR_START_PIN, LOW);
+    digitalWrite(COMPRESSOR_ON_PIN, LOW);
+  }
 }
