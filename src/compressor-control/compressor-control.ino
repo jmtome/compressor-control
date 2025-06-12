@@ -26,8 +26,19 @@ void setup() {
 
   lcd.setCursor(0, 0);
   lcd.print("System Booting");
-  delay(10500);
+  delay(1500);
   lcd.clear();
+  lcd.print("System Loaded");
+  lcd.setCursor(0,1);
+  lcd.print("Welcome Sir.");
+
+  // Compressor outputs
+  pinMode(COMPRESSOR_START_PIN, OUTPUT);
+  pinMode(COMPRESSOR_ON_PIN, OUTPUT);
+
+  digitalWrite(COMPRESSOR_START_PIN, LOW);
+  digitalWrite(COMPRESSOR_ON_PIN, LOW);
+
 }
 
 void loop() {
