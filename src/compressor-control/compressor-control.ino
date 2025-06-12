@@ -18,6 +18,14 @@
 // === LCD object ===
 LiquidCrystal_I2C lcd(0x27, 16, 2);  // Change to 0x3F if needed
 
+// Enum for Compressor State Machine
+enum CompressorState { OFF,
+                       STARTING,
+                       RUNNING };
+CompressorState compressorState = OFF;
+
+unsigned long compressorStartTime = 0;
+
 
 void setup() {
   // Initialize LCD
@@ -83,19 +91,34 @@ void displaySensorData(float tempC, float humidity, float vacuum) {
 }
 
 void updateCompressorControl(float temperatureC, float vacuumLevel) {
-  bool compressorShouldRun = false;
+  bool shouldRun = (temperatureC > 35.0 && vacuumLevel < 20.0);
+  unsigned long now = millis();
 
-  // Basic threshold logic
-  if (temperatureC > 35.0 && vacuumLevel < 20.0) {
-    compressorShouldRun = true;
-  }
+  switch (compressorState) {
+    case OFF:
+      if (shouldRun) {
+        // Start compressor
+        digitalWrite(COMPRESSOR_START_PIN, HIGH);
+        digitalWrite(COMPRESSOR_ON_PIN, HIGH);
+        compressorStartTime = now;
+        compressorState = STARTING;
+      }
+      break;
 
-  // Apply output logic
-  if (compressorShouldRun) {
-    digitalWrite(COMPRESSOR_START_PIN, HIGH);
-    digitalWrite(COMPRESSOR_ON_PIN, HIGH);
-  } else {
-    digitalWrite(COMPRESSOR_START_PIN, LOW);
-    digitalWrite(COMPRESSOR_ON_PIN, LOW);
+    case STARTING:
+      if (now - compressorStartTime >= 6000) {    // 6 seconds elapsed
+        digitalWrite(COMPRESSOR_START_PIN, LOW);  // stop start phase
+        compressorState = RUNNING;
+      }
+      break;
+
+    case RUNNING:
+      if (!shouldRun) {
+        // Shut down
+        digitalWrite(COMPRESSOR_START_PIN, LOW);
+        digitalWrite(COMPRESSOR_ON_PIN, LOW);
+        compressorState = OFF;
+      }
+      break;
   }
 }
