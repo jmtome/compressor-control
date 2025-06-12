@@ -4,7 +4,7 @@
 
 This repository contains the **bare‑bones firmware and wiring plan** for an Arduino Uno‑based controller that will ultimately monitor temperature, humidity and vacuum, and drive a two‑stage compressor.
 
-*Current phase*: infrastructure only (no control logic).
+*Current phase*: infrastructure and basic control logic implemented.
 
 ---
 
@@ -60,9 +60,13 @@ This repository contains the **bare‑bones firmware and wiring plan** for an Ar
 .
 ├── src/
 │   └── compressor_controller.ino   ← main firmware file
+├── wokwi/
+│   └── simulation files
+├── demo.mp4                        ← optional local video demo
 └── README.md                       ← this file
 ```
 
+---
 
 ## Required Arduino Libraries
 
@@ -86,9 +90,8 @@ Before compiling, make sure to install the following library:
 6. **Wire components** according to the *Pin Map* section.  
    - Simulate NTC and Vacuum sensors using potentiometers on A0 and A1.  
 7. Compile and upload the sketch.  
-   - After Commit #2, you should see a splash screen on the LCD ("System Booting").  
-8. Continue through each commit step to build functionality incrementally.
-
+   - After basic upload, you should see a splash screen on the LCD ("System Booting").  
+8. Observe LED outputs and Serial Monitor as temperature and vacuum values change.
 
 ---
 
@@ -101,9 +104,55 @@ Until real sensors arrive:
 
 ---
 
-## I²C Address Reference
+## Compressor Control Logic Overview
 
-| Device          | Default Address |
-|-----------------|------------------|
-| 16x2 LCD        | `0x27` or `0x3F`  |
-| SHT30/31 Sensor | `0x44` or `0x45`  |
+This firmware includes a basic **state-machine-driven logic** for controlling a two-stage compressor using sensor inputs.
+
+### Activation Logic
+
+- **Starts** when:
+  - NTC Temperature > `35.0°C`
+  - Vacuum < `20.0 kPa`
+- **Start Phase**: 
+  - Activates `START` (D6) and `ON` (D7) pins together
+  - After 6 seconds, the `START` pin turns off
+  - `ON` (D7) remains active
+- **Shutdown**:
+  - Compressor turns off only if:
+    - Temperature and vacuum fall outside threshold
+    - AND it's been on for at least 10 seconds
+
+### Configurability
+
+All parameters are defined via `#define` constants at the top of the sketch:
+```cpp
+#define TEMP_THRESHOLD       35.0
+#define VACUUM_THRESHOLD     20.0
+#define START_DURATION_MS    6000
+#define MIN_RUN_TIME_MS     10000
+```
+
+### Serial Logging
+
+Compressor transitions (`STARTING`, `RUNNING`, `STOPPED`) are logged to the Serial Monitor for debugging.
+
+---
+
+## Wokwi Simulation
+
+This project includes a Wokwi simulation setup:
+- A pre-built `.zip` folder is included under `/wokwi/`
+- You can simulate analog sensors using adjustable knobs
+- **Note**: The SHT30/31 is not currently simulated; use mock values
+
+---
+
+## 🎥 Demo Video
+
+This repository includes a demonstration video of the controller in action.
+
+- The video file `demo.mp4` is included in the repository root.
+- You can **[click here to watch it](demo.mp4)** directly on GitHub. It will open in your browser's media player if supported.
+
+> 📢 **Note:** GitHub does not support embedded video playback *inside* the README. Clicking the link will open the video separately.
+
