@@ -20,8 +20,14 @@ LiquidCrystal_I2C lcd(0x27, 16, 2); // Change to 0x3F if needed
 
 
 void setup() {
-  // put your setup code here, to run once:
+  // Initialize LCD
+  lcd.init();          // Start LCD via I²C
+  lcd.backlight();     // Turn on backlight
 
+  lcd.setCursor(0, 0);
+  lcd.print("System Booting");
+  delay(10500);
+  lcd.clear();
 }
 
 void loop() {
