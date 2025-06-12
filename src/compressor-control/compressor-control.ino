@@ -48,7 +48,8 @@ void setup() {
   lcd.print("System Loaded");
   lcd.setCursor(0, 1);
   lcd.print("Welcome Sir.");
-
+  delay(1500);
+  lcd.clear();
   // Compressor outputs
   pinMode(COMPRESSOR_START_PIN, OUTPUT);
   pinMode(COMPRESSOR_ON_PIN, OUTPUT);
@@ -84,19 +85,56 @@ void loop() {
 }
 
 void displaySensorData(float tempC, float humidity, float vacuum) {
+  // === First row ===
   lcd.setCursor(0, 0);
   lcd.print("T:");
   lcd.print(tempC, 1);
-  lcd.print((char)223);
-  lcd.print("C  H:");
+  lcd.print("C H:");
   lcd.print(humidity, 0);
-  lcd.print("%");
+  lcd.print("% ");
 
+  // Countdown or '-'
+  switch (compressorState) {
+    case STARTING:
+      {
+        int countdown = (START_DURATION_MS - (millis() - compressorStartTime)) / 1000;
+        if (countdown <= 0) {
+          lcd.print("--");
+        } else {
+          if (countdown < 10) lcd.print("0");
+          lcd.print(countdown);
+        }
+        break;
+      }
+    case RUNNING:
+    case OFF:
+      lcd.print("--");
+      break;
+  }
+
+  // === Second row ===
   lcd.setCursor(0, 1);
-  lcd.print("Vacuum: ");
-  lcd.print(vacuum, 0);
-  lcd.print("kPa");
+  lcd.print("Vac: ");
+
+  // Pad vacuum if <10
+  if (vacuum < 10) lcd.print(" ");
+  lcd.print((int)vacuum);
+  lcd.print("kPa.  ");
+
+  // Compressor state in last 3 chars
+  switch (compressorState) {
+    case STARTING:
+      lcd.print("STA");
+      break;
+    case RUNNING:
+      lcd.print("RUN");
+      break;
+    case OFF:
+      lcd.print("STO");
+      break;
+  }
 }
+
 
 void updateCompressorControl(float temperatureC, float vacuumLevel) {
   bool shouldRun = (temperatureC > TEMP_THRESHOLD && vacuumLevel < VACUUM_THRESHOLD);
