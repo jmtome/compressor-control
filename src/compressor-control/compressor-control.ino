@@ -21,6 +21,7 @@ LiquidCrystal_I2C lcd(0x27, 16, 2); // Change to 0x3F if needed
 
 void setup() {
   // Initialize LCD
+  Serial.begin(9600);
   lcd.init();          // Start LCD via I²C
   lcd.backlight();     // Turn on backlight
 
@@ -42,6 +43,22 @@ void setup() {
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
+  // === Read analog sensors ===
+  int ntcRaw = analogRead(NTC_PIN);            // From A0
+  int vacuumRaw = analogRead(VACUUM_SENSOR_PIN); // From A1
+
+  // Convert raw values (0–1023) to meaningful units (mocked)
+  float temperatureC = map(ntcRaw, 0, 1023, -10, 60);       // Example range: -10°C to 60°C
+  float vacuumLevel = map(vacuumRaw, 0, 1023, 0, 100);      // Example range: 0–100 kPa
+
+  // OPTIONAL: print to serial for debugging
+  Serial.print("Temp: ");
+  Serial.print(temperatureC);
+  Serial.print(" °C, Vacuum: ");
+  Serial.print(vacuumLevel);
+  Serial.println(" kPa");
+
+  // Add delay if needed
+  delay(1000);
 
 }
