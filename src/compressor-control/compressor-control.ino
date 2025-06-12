@@ -10,27 +10,27 @@
 #define VACUUM_SENSOR_PIN A1
 
 // Comment-Uncomment desired or check datasheet
-#define SHT30_ADDRESS 0x44   //Default wiring (ADDR = GND or floating)
+#define SHT30_ADDRESS 0x44  //Default wiring (ADDR = GND or floating)
 //#define SHT30_ADDRESS 0x45   //Use if ADDR pin is tied to VCC
 
 // I²C LCD + SHT30/31 will use A4 (SDA) and A5 (SCL)
 
 // === LCD object ===
-LiquidCrystal_I2C lcd(0x27, 16, 2); // Change to 0x3F if needed
+LiquidCrystal_I2C lcd(0x27, 16, 2);  // Change to 0x3F if needed
 
 
 void setup() {
   // Initialize LCD
   Serial.begin(9600);
-  lcd.init();          // Start LCD via I²C
-  lcd.backlight();     // Turn on backlight
+  lcd.init();       // Start LCD via I²C
+  lcd.backlight();  // Turn on backlight
 
   lcd.setCursor(0, 0);
   lcd.print("System Booting");
   delay(1500);
   lcd.clear();
   lcd.print("System Loaded");
-  lcd.setCursor(0,1);
+  lcd.setCursor(0, 1);
   lcd.print("Welcome Sir.");
 
   // Compressor outputs
@@ -39,17 +39,19 @@ void setup() {
 
   digitalWrite(COMPRESSOR_START_PIN, LOW);
   digitalWrite(COMPRESSOR_ON_PIN, LOW);
-
 }
 
 void loop() {
+  // put your main code here, to run repeatedly:
   // === Read analog sensors ===
-  int ntcRaw = analogRead(NTC_PIN);            // From A0
-  int vacuumRaw = analogRead(VACUUM_SENSOR_PIN); // From A1
+  int ntcRaw = analogRead(NTC_PIN);               // From A0
+  int vacuumRaw = analogRead(VACUUM_SENSOR_PIN);  // From A1
+  // Mocked humidity for now
+  float humidity = 55.0;
 
   // Convert raw values (0–1023) to meaningful units (mocked)
-  float temperatureC = map(ntcRaw, 0, 1023, -10, 60);       // Example range: -10°C to 60°C
-  float vacuumLevel = map(vacuumRaw, 0, 1023, 0, 100);      // Example range: 0–100 kPa
+  float temperatureC = map(ntcRaw, 0, 1023, -10, 60);   // Example range: -10°C to 60°C
+  float vacuumLevel = map(vacuumRaw, 0, 1023, 0, 100);  // Example range: 0–100 kPa
 
   // OPTIONAL: print to serial for debugging
   Serial.print("Temp: ");
@@ -61,4 +63,20 @@ void loop() {
   // Add delay if needed
   delay(1000);
 
+  displaySensorData(temperatureC, humidity, vacuumLevel);
+}
+
+void displaySensorData(float tempC, float humidity, float vacuum) {
+  lcd.setCursor(0, 0);
+  lcd.print("T:");
+  lcd.print(tempC, 1);
+  lcd.print((char)223);
+  lcd.print("C  H:");
+  lcd.print(humidity, 0);
+  lcd.print("%");
+
+  lcd.setCursor(0, 1);
+  lcd.print("Vacuum: ");
+  lcd.print(vacuum, 0);
+  lcd.print("kPa");
 }
