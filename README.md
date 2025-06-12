@@ -149,7 +149,7 @@ This project includes a Wokwi simulation setup:
 
 ## 🎥 Demo Video
 
-[![Watch the demo](https://img.youtube.com/vi/lD0KJsxjSkk/0.jpg)](https://www.youtube.com/watch?v=lD0KJsxjSkk)
+[![Watch the demo](https://img.youtube.com/vi/lD0KJsxjSkk/0.jpg)](https://youtu.be/kiyMNfeIZec)
 
 This video demonstrates the Arduino-based compressor controller in action.  
 Click the thumbnail to view it on YouTube.
