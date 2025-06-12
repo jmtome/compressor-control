@@ -18,6 +18,13 @@
 // === LCD object ===
 LiquidCrystal_I2C lcd(0x27, 16, 2);  // Change to 0x3F if needed
 
+
+// === Compressor Control Configuration ===
+#define TEMP_THRESHOLD 35.0     // °C - NTC trigger point
+#define VACUUM_THRESHOLD 20.0   // kPa - Vacuum trigger point
+#define START_DURATION_MS 6000  // ms - Time START stays on before switching to RUN
+#define MIN_RUN_TIME_MS 10000   // ms - Minimum ON duration before shutdown allowed
+
 // Enum for Compressor State Machine
 enum CompressorState { OFF,
                        STARTING,
@@ -25,6 +32,7 @@ enum CompressorState { OFF,
 CompressorState compressorState = OFF;
 
 unsigned long compressorStartTime = 0;
+unsigned long compressorRunStartTime = 0;
 
 
 void setup() {
@@ -91,30 +99,32 @@ void displaySensorData(float tempC, float humidity, float vacuum) {
 }
 
 void updateCompressorControl(float temperatureC, float vacuumLevel) {
-  bool shouldRun = (temperatureC > 35.0 && vacuumLevel < 20.0);
+  bool shouldRun = (temperatureC > TEMP_THRESHOLD && vacuumLevel < VACUUM_THRESHOLD);
   unsigned long now = millis();
 
   switch (compressorState) {
     case OFF:
       if (shouldRun) {
-        // Start compressor
+        Serial.println("Compressor STARTING");
         digitalWrite(COMPRESSOR_START_PIN, HIGH);
         digitalWrite(COMPRESSOR_ON_PIN, HIGH);
         compressorStartTime = now;
+        compressorRunStartTime = now;
         compressorState = STARTING;
       }
       break;
 
     case STARTING:
-      if (now - compressorStartTime >= 6000) {    // 6 seconds elapsed
-        digitalWrite(COMPRESSOR_START_PIN, LOW);  // stop start phase
+      if (now - compressorStartTime >= START_DURATION_MS) {
+        Serial.println("Compressor RUNNING");
+        digitalWrite(COMPRESSOR_START_PIN, LOW);  // Turn off START, keep ON
         compressorState = RUNNING;
       }
       break;
 
     case RUNNING:
-      if (!shouldRun) {
-        // Shut down
+      if (!shouldRun && (now - compressorRunStartTime >= MIN_RUN_TIME_MS)) {
+        Serial.println("Compressor STOPPED");
         digitalWrite(COMPRESSOR_START_PIN, LOW);
         digitalWrite(COMPRESSOR_ON_PIN, LOW);
         compressorState = OFF;
